@@ -171,7 +171,13 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    return
+    cop=pd.DataFrame()
+    cop["_c1"]= tbl0["_c1"]
+    cop["_c2"]= tbl0["_c2"].astype(str)
+    cop = cop.sort_values(by="_c2", ascending=True)
+    rta = pd.DataFrame()
+    rta["_c2"] = cop.groupby('_c1')['_c2'].apply(':'.join)
+    return rta
 
 
 def pregunta_11():
@@ -190,7 +196,14 @@ def pregunta_11():
     38   38      d,e
     39   39    a,d,f
     """
-    return
+    tbli = tbl1.copy()
+    tbli = tbli.groupby('_c0').agg({'_c4': lambda x: sorted(list(x))})
+    
+    for index, row in tbli.iterrows():
+        row['_c4'] = ','.join([str(int) for int in row['_c4']])
+    tbli.insert(0, '_c0', range(0,40))
+
+    return tbli
 
 
 def pregunta_12():
@@ -208,7 +221,12 @@ def pregunta_12():
     38   38                    eee:0,fff:9,iii:2
     39   39                    ggg:3,hhh:8,jjj:5
     """
-    return
+    tbl2['_c5b'] = tbl2['_c5b'].map(str)
+    tbl2['_c5'] = tbl2['_c5a'] + ":" + tbl2['_c5b']
+    data = tbl2.pivot_table(values="_c5",index="_c0",aggfunc=sorted)
+    data['_c5'] = data['_c5'].map(",".join)
+    data = data.reset_index()
+    return data
 
 
 def pregunta_13():
@@ -225,4 +243,9 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    return
+    su = pd.merge(
+        tbl0,
+        tbl2,
+        how="outer",
+    )
+    return su.groupby('_c1')['_c5b'].sum()
